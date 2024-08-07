@@ -1,0 +1,72 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Transform": "AWS::Serverless-2016-10-31",
+  "Description": "An AWS Serverless Application.",
+  "Resources": {
+    "ApiGateway": {
+      "Type": "AWS::Serverless::Api",
+      "Properties": {
+        "Name": {
+          "Fn::Sub": "tech-test-payment-api-service-dev"
+        },
+        "StageName": {
+          "Fn::Sub": "dev"
+        },
+        "EndpointConfiguration": "EDGE"
+      }
+    },
+
+    "WebApi": {
+      "Type": "AWS::Serverless::Function",
+      "Properties": {
+        "FunctionName": {
+          "Fn::Sub": "tech-test-payment-api-service-dev"
+        },
+        "Handler": "ProductService::ProductService.AwsFunctions::FunctionHandlerAsync",
+        "Runtime": "dotnet6",
+        "CodeUri": "",
+        "MemorySize": 256,
+        "Timeout": 30,
+        "Role": "arn:aws:iam::257078273291:role/Lambda",
+        "Policies": [
+          "AWSLambdaBasicExecutionRole"
+        ],
+        "Events": {
+          "RootResource": {
+            "Type": "Api",
+            "Properties": {
+              "Path": "/",
+              "Method": "ANY",
+              "RestApiId": {
+                "Ref": "ApiGateway"
+              }
+            }
+          },
+          "AnyResource": {
+            "Type": "Api",
+            "Properties": {
+              "Path": "/{proxy+}",
+              "Method": "ANY",
+              "RestApiId": {
+                "Ref": "ApiGateway"
+              }
+            }
+          }
+        },
+        "Environment": {
+          "Variables": {
+            "ASPNETCORE_ENVIRONMENT": "dev"
+          }
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "ApiURL": {
+      "Description": "API endpoint URL for dev environment",
+      "Value": {
+        "Fn::Sub": "https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/dev/"
+      }
+    }
+  }
+}

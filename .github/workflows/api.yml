@@ -1,0 +1,79 @@
+name: CI/CD (API-Dev)
+
+on:
+  push:
+    branches:
+        - development
+        
+permissions:
+  actions: write
+  checks: write
+  contents: write
+  deployments: write
+  id-token: write
+  issues: write
+  discussions: write
+  packages: write
+  pages: write
+  pull-requests: write
+  repository-projects: write
+  security-events: write
+  statuses: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '6.x'
+          
+      - name: Install dependencies Build
+        run: dotnet restore ./src/services/RestApiTemplate.Service/RestApiTemplate.Service.csproj
+        
+      - name: Build
+        run: dotnet build ./src/services/RestApiTemplate.Service/RestApiTemplate.Service.csproj --configuration Release -o webapi
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+  
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+    
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '6.x'
+        
+      - name: Install dependencies Build
+        run: dotnet restore ./src/tests/RestApiTemplate.Test/RestApiTemplate.Test.csproj
+      
+      - name: Build
+        run: dotnet build ./src/tests/RestApiTemplate.Test/RestApiTemplate.Test.csproj --configuration Release
+      
+      - name: Test
+        run: dotnet test ./src/tests/RestApiTemplate.Test/RestApiTemplate.Test.csproj --configuration Release
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      
+      - name: Install AWS CLI
+        run: dotnet tool install -g Amazon.Lambda.Tools
+      
+      - name: Deploy to AWS Lambda
+        run: dotnet lambda deploy-serverless -sn RestApiTemplate.Service-dev -sb code-pipeline-serveless-dotnet -t src/services/RestApiTemplate.Service/serverless.dev --region us-east-1

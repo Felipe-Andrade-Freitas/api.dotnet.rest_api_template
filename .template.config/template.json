@@ -1,0 +1,39 @@
+{
+    "$schema": "http://json.schemastore.org/template",
+    "author": "facode",
+    "classifications": [ "Common", "Web", "WebAPI" ],
+    "name": "RestApi",
+    "identity": "RestApiTemplate.CSharp",
+    "shortName": "restApi",
+    "tags": {
+      "language": "C#",
+      "type": "project"
+    },
+    "sourceName": "RestApiTemplate",
+    "preferNameDirectory": true,
+    "Description": {
+        "type": "parameter",
+        "description": "FA Code offers a modular based on Domain Driven Design principles and patterns, providing the necessary infrastructure and guiding to implement REST APIs using ASP.NET Core",
+        "defaultValue": "FA Code offers a modular based on Domain Driven Design principles and patterns, providing the necessary infrastructure and guiding to implement REST APIs using ASP.NET Core",
+        "replaces": "DescriptionContent"
+    },
+    "sources": [
+      {
+        "exclude": [
+          ".idea/**",
+          ".vscode/**",
+          "obj/**",
+          "bin/**",
+          ".template.config/**",
+          "*.nuspec",
+          "*.nupkg",
+          "*.yml",
+          "*.png",
+          "*.svg",
+          ".git/**",		
+          "RestApiTemplatePack.csproj",
+          "README.md"
+        ]
+      }
+    ]
+  }
